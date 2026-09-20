@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Giriş Yap | CafeMenu Digital Card</title>
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="nav container"><a class="logo" href="/">CafeMenu Digital Card</a></div>
+<div class="auth-wrap">
+  <h1>Giriş Yap</h1>
+  <p class="form-error" id="err"></p>
+  <form id="form">
+    <div class="field"><label>E-posta</label><input type="email" name="email" required></div>
+    <div class="field"><label>Şifre</label><input type="password" name="password" required></div>
+    <button class="btn" type="submit" style="width:100%">Giriş Yap</button>
+  </form>
+  <p class="form-note"><a href="/forgot-password">Şifremi unuttum</a> &middot; <a href="/register">Hesap oluştur</a></p>
+</div>
+<script>
+document.getElementById('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const err = document.getElementById('err');
+  err.textContent = '';
+  const data = Object.fromEntries(new FormData(e.target).entries());
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data), credentials: 'include',
+    });
+    const json = await res.json();
+    if (!res.ok) { err.textContent = json.message || 'Giriş başarısız.'; return; }
+    localStorage.setItem('cmdc_token', json.token);
+    window.location.href = '/dashboard';
+  } catch (e2) { err.textContent = 'Sunucuya bağlanılamadı.'; }
+});
+</script>
+</body>
+</html>

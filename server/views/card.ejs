@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title><%= `${profile.first_name || ''} ${profile.last_name || ''}`.trim() %> | Dijital Kartvizit</title>
+<meta name="description" content="<%= (profile.title || profile.company_name || 'Dijital kartvizit') %> - <%= `${profile.first_name || ''} ${profile.last_name || ''}`.trim() %>">
+<meta name="robots" content="<%= profile.is_public ? 'index, follow' : 'noindex, nofollow' %>">
+
+<meta property="og:type" content="profile">
+<meta property="og:title" content="<%= `${profile.first_name || ''} ${profile.last_name || ''}`.trim() %> | Dijital Kartvizit">
+<meta property="og:description" content="<%= (profile.title || profile.company_name || '') %>">
+<% if (profile.profile_photo_url) { %><meta property="og:image" content="<%= appUrl + profile.profile_photo_url %>"><% } %>
+<meta property="og:url" content="<%= appUrl %>/<%= profile.slug %>">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="<%= `${profile.first_name || ''} ${profile.last_name || ''}`.trim() %>">
+<meta name="twitter:description" content="<%= (profile.title || profile.company_name || '') %>">
+
+<link rel="stylesheet" href="/css/themes.css">
+<link rel="stylesheet" href="/css/card.css">
+</head>
+<body class="theme-<%= profile.theme %>" style="--primary: <%= profile.primary_color %>; --secondary: <%= profile.secondary_color %>;">
+
+<div class="card">
+  <div class="cover" <% if (profile.cover_image_url) { %>style="background-image:url('<%= profile.cover_image_url %>')"<% } %>></div>
+
+  <div class="identity">
+    <% if (profile.profile_photo_url) { %>
+      <img class="avatar" src="<%= profile.profile_photo_url %>" alt="<%= profile.first_name %> <%= profile.last_name %>">
+    <% } else { %>
+      <div class="avatar avatar-placeholder"><%= (profile.first_name || '?').charAt(0) %><%= (profile.last_name || '').charAt(0) %></div>
+    <% } %>
+    <h1><%= `${profile.first_name || ''} ${profile.last_name || ''}`.trim() %></h1>
+    <% if (profile.title) { %><p class="title"><%= profile.title %></p><% } %>
+    <% if (profile.company_name) { %><p class="company"><%= profile.company_name %></p><% } %>
+    <% if (profile.bio) { %><p class="bio"><%= profile.bio %></p><% } %>
+  </div>
+
+  <div class="actions">
+    <% if (profile.phone) { %>
+      <a class="action-btn" href="tel:<%= profile.phone %>" data-event="phone_click">
+        <span>Ara</span>
+      </a>
+    <% } %>
+    <% if (profile.whatsapp) { %>
+      <a class="action-btn" target="_blank" rel="noopener" href="https://wa.me/<%= profile.whatsapp.replace(/[^0-9]/g,'') %>" data-event="whatsapp_click">
+        <span>WhatsApp</span>
+      </a>
+    <% } %>
+    <% if (profile.email) { %>
+      <a class="action-btn" href="mailto:<%= profile.email %>" data-event="email_click">
+        <span>E-posta</span>
+      </a>
+    <% } %>
+    <a class="action-btn" href="/<%= profile.slug %>/vcard.vcf?src=<%= source %>" data-event="save_contact">
+      <span>Rehbere Kaydet</span>
+    </a>
+    <button class="action-btn" id="shareBtn" type="button">
+      <span>Paylaş</span>
+    </button>
+  </div>
+
+  <% if (links.filter(l => ['instagram','facebook','linkedin','x','tiktok','youtube','telegram','pinterest'].includes(l.type)).length) { %>
+  <div class="social-row">
+    <% links.filter(l => ['instagram','facebook','linkedin','x','tiktok','youtube','telegram','pinterest'].includes(l.type)).forEach(l => { %>
+      <a class="social-icon" target="_blank" rel="noopener" href="<%= l.url %>" data-event="<%= l.type %>_click" title="<%= l.label || l.type %>">
+        <%= l.type.slice(0,2).toUpperCase() %>
+      </a>
+    <% }) %>
+  </div>
+  <% } %>
+
+  <% const custom = links.filter(l => !['instagram','facebook','linkedin','x','tiktok','youtube','telegram','pinterest'].includes(l.type)); %>
+  <% if (profile.website || profile.address || profile.google_review_url || custom.length) { %>
+  <div class="link-list">
+    <% if (profile.website) { %>
+      <a class="link-item" target="_blank" rel="noopener" href="<%= profile.website %>" data-event="website_click"><%= profile.website %></a>
+    <% } %>
+    <% if (profile.address) { %>
+      <a class="link-item" target="_blank" rel="noopener" href="https://maps.google.com/?q=<%= encodeURIComponent(profile.address) %>">Konum: <%= profile.address %></a>
+    <% } %>
+    <% if (profile.google_review_url) { %>
+      <a class="link-item" target="_blank" rel="noopener" href="<%= profile.google_review_url %>" data-event="google_click">Google'da Değerlendir</a>
+    <% } %>
+    <% custom.forEach(l => { %>
+      <a class="link-item" target="_blank" rel="noopener" href="<%= l.url %>"><%= l.label || l.url %></a>
+    <% }) %>
+  </div>
+  <% } %>
+
+  <% if (profile.lead_form_enabled) { %>
+  <div class="lead-form">
+    <h2>Bana Ulaşın</h2>
+    <form id="leadForm">
+      <input type="text" name="name" placeholder="Ad Soyad" required maxlength="160">
+      <input type="tel" name="phone" placeholder="Telefon" maxlength="40">
+      <input type="email" name="email" placeholder="E-posta" maxlength="255">
+      <textarea name="message" placeholder="Mesaj" maxlength="2000"></textarea>
+      <button type="submit">Gönder</button>
+      <p class="lead-status" id="leadStatus"></p>
+    </form>
+  </div>
+  <% } %>
+
+  <div class="footer">
+    <span>CafeMenu Digital Card ile oluşturuldu</span>
+  </div>
+</div>
+
+<script>
+  const SLUG = <%- JSON.stringify(profile.slug) %>;
+  const SOURCE = <%- JSON.stringify(source) %>;
+
+  function track(eventType) {
+    fetch(`/api/public/${SLUG}/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_type: eventType, source: SOURCE }),
+      keepalive: true,
+    }).catch(() => {});
+  }
+
+  document.querySelectorAll('[data-event]').forEach((el) => {
+    el.addEventListener('click', () => track(el.getAttribute('data-event')));
+  });
+
+  const shareBtn = document.getElementById('shareBtn');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', async () => {
+      const url = window.location.href;
+      track('share');
+      if (navigator.share) {
+        try { await navigator.share({ title: document.title, url }); } catch (e) {}
+      } else {
+        try {
+          await navigator.clipboard.writeText(url);
+          shareBtn.querySelector('span').textContent = 'Kopyalandı!';
+          setTimeout(() => { shareBtn.querySelector('span').textContent = 'Paylaş'; }, 1500);
+        } catch (e) {}
+      }
+    });
+  }
+
+  const leadForm = document.getElementById('leadForm');
+  if (leadForm) {
+    leadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('leadStatus');
+      const data = Object.fromEntries(new FormData(leadForm).entries());
+      data.source = SOURCE;
+      status.textContent = 'Gönderiliyor...';
+      try {
+        const res = await fetch(`/api/public/${SLUG}/leads`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        if (res.ok) {
+          status.textContent = 'Mesajınız iletildi. Teşekkürler!';
+          leadForm.reset();
+        } else {
+          status.textContent = json.message || 'Bir hata oluştu.';
+        }
+      } catch (err) {
+        status.textContent = 'Bir hata oluştu.';
+      }
+    });
+  }
+</script>
+</body>
+</html>

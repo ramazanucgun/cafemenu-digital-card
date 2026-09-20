@@ -1,0 +1,60 @@
+:root {
+  --primary: #111827;
+  --secondary: #6b7280;
+}
+
+/* Minimal */
+.theme-minimal {
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --text: #111111;
+  --border: #e5e5e5;
+  --radius: 14px;
+}
+
+/* Corporate */
+.theme-corporate {
+  --bg: #eef1f5;
+  --surface: #ffffff;
+  --text: #16233d;
+  --border: #d7deea;
+  --radius: 8px;
+}
+
+/* Luxury */
+.theme-luxury {
+  --bg: #0f0e0c;
+  --surface: #1a1815;
+  --text: #f2ead9;
+  --border: #3a3428;
+  --radius: 4px;
+}
+.theme-luxury { --primary: #c9a227; }
+
+/* Dark */
+.theme-dark {
+  --bg: #0b0b0d;
+  --surface: #161619;
+  --text: #f2f2f2;
+  --border: #2a2a2e;
+  --radius: 12px;
+}
+
+/* Creative */
+.theme-creative {
+  --bg: #fbf7ff;
+  --surface: #ffffff;
+  --text: #211a2c;
+  --border: #e6dcf5;
+  --radius: 20px;
+}
+
+/* Restaurant */
+.theme-restaurant {
+  --bg: #fbf3e9;
+  --surface: #fffaf3;
+  --text: #2c1c10;
+  --border: #eaddc7;
+  --radius: 10px;
+}
+.theme-restaurant { --primary: #8a3b12; }

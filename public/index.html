@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CafeMenu Digital Card | NFC ve QR Dijital Kartvizit</title>
+<meta name="description" content="NFC veya QR ile kartvizitinizi saniyeler içinde paylaşın. Kartınızı değiştirmeden bilgilerinizi istediğiniz zaman güncelleyin.">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="nav container">
+  <a class="logo" href="/">CafeMenu Digital Card</a>
+  <div style="display:flex; gap:10px;">
+    <a class="btn secondary" href="/login">Giriş Yap</a>
+    <a class="btn" href="/register">Ücretsiz Başla</a>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>Dijital Kartvizitinizi Dijitale Taşıyın</h1>
+  <p>NFC veya QR ile kartvizitinizi saniyeler içinde paylaşın. Tek kart, tüm iletişim bilgileriniz. Kartınızı değiştirmeden bilgilerinizi istediğiniz zaman güncelleyin.</p>
+  <a class="btn" href="/register">Hemen Ücretsiz Dene</a>
+</div>
+
+<div class="features container">
+  <div class="feature-card">
+    <h3>Stabil NFC / QR Adresi</h3>
+    <p>Kullanıcı adınızı değiştirseniz bile fiziksel NFC kartınız ve basılı QR'ınız bozulmaz.</p>
+  </div>
+  <div class="feature-card">
+    <h3>Tüm Bağlantılarınız Tek Yerde</h3>
+    <p>Telefon, WhatsApp, e-posta, sosyal medya ve özel bağlantılarınızı tek profilde toplayın.</p>
+  </div>
+  <div class="feature-card">
+    <h3>Anlık İstatistikler</h3>
+    <p>Profil görüntülenmelerini, tıklamaları ve gelen talepleri panelden takip edin.</p>
+  </div>
+</div>
+
+<div style="text-align:center; padding-bottom:60px; color:#6b7280; font-size:13px;">
+  &copy; <span id="year"></span> CafeMenu Digital Card. Örnek bir profil için: <code>/ahmetyilmaz</code>
+</div>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
