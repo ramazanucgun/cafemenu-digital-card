@@ -3,7 +3,7 @@ html, body {
   margin: 0; padding: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-body, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -18,10 +18,11 @@ html, body {
 
 .cover {
   height: 140px;
-  background: var(--primary);
+  background: var(--cover-bg, var(--primary));
   background-size: cover;
   background-position: center;
 }
+.cover.has-image { background-image: var(--cover-image); }
 
 .identity {
   text-align: center;
@@ -29,22 +30,32 @@ html, body {
   margin-top: -48px;
 }
 
+.avatar-ring {
+  width: 104px; height: 104px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--avatar-ring, none);
+  display: flex; align-items: center; justify-content: center;
+}
+.avatar-ring[data-has-ring="true"] { padding: 3px; }
+
 .avatar {
   width: 96px; height: 96px;
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid var(--surface);
   display: block;
-  margin: 0 auto 12px;
   background: var(--surface);
 }
+.avatar-ring[data-has-ring="true"] .avatar { width: 100%; height: 100%; border: 3px solid var(--bg); }
+
 .avatar-placeholder {
   display: flex; align-items: center; justify-content: center;
   font-size: 32px; font-weight: 600;
   background: var(--primary); color: #fff;
 }
 
-.identity h1 { font-size: 22px; margin: 0 0 2px; }
+.identity h1 { font-family: var(--font-heading, inherit); font-size: 24px; margin: 0 0 2px; }
 .identity .title { margin: 0; font-size: 15px; color: var(--secondary); }
 .identity .company { margin: 2px 0 0; font-size: 14px; color: var(--secondary); font-weight: 600; }
 .identity .bio { margin: 10px 0 0; font-size: 14px; line-height: 1.5; color: var(--text); opacity: 0.85; }
@@ -66,6 +77,25 @@ html, body {
   border: none; cursor: pointer;
 }
 
+/* Button style variants driven by --btn-style (set per theme in themes.css) */
+.theme-premium .action-btn {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border);
+}
+.theme-vibrant .actions { gap: 11px; }
+.theme-vibrant .action-btn {
+  background: linear-gradient(90deg, var(--primary), #3ec6e0);
+  border-radius: 999px;
+}
+.theme-vibrant .action-btn:nth-child(1) { background: linear-gradient(90deg, #ff6b6b, #ff9776); }
+.theme-vibrant .action-btn:nth-child(2) { background: linear-gradient(90deg, #22c55e, #3ec6e0); }
+.theme-vibrant .action-btn:nth-child(3) { background: linear-gradient(90deg, #8b5cf6, #b18cff); }
+.theme-editorial .action-btn {
+  background: #fff; color: var(--text);
+  border: 1px solid var(--border); border-radius: 0;
+  font-weight: 500;
+}
+
 .social-row {
   display: flex; flex-wrap: wrap; justify-content: center;
   gap: 10px;
@@ -81,6 +111,9 @@ html, body {
   text-decoration: none;
   font-size: 11px; font-weight: 700;
 }
+.theme-premium .social-icon { color: var(--primary); border-color: var(--border); background: transparent; }
+.theme-vibrant .social-icon { color: #fff; border: none;
+  background: linear-gradient(135deg, var(--primary), #3ec6e0); }
 
 .link-list {
   display: flex; flex-direction: column; gap: 8px;
@@ -96,9 +129,11 @@ html, body {
   text-decoration: none;
   font-size: 14px;
 }
+.theme-editorial .link-list { padding: 0; gap: 0; }
+.theme-editorial .link-item { border-radius: 0; border-left: none; border-right: none; border-top: none; padding: 15px 20px; }
 
 .lead-form { padding: 8px 20px 20px; }
-.lead-form h2 { font-size: 16px; margin: 8px 0; }
+.lead-form h2 { font-family: var(--font-heading, inherit); font-size: 16px; margin: 8px 0; }
 .lead-form form { display: flex; flex-direction: column; gap: 8px; }
 .lead-form input, .lead-form textarea {
   padding: 11px 12px;
@@ -124,6 +159,6 @@ html, body {
 }
 
 @media (max-width: 360px) {
-  .identity h1 { font-size: 19px; }
+  .identity h1 { font-size: 20px; }
   .action-btn { font-size: 13px; padding: 10px 8px; }
 }

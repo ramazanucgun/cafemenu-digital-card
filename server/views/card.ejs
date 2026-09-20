@@ -17,20 +17,26 @@
 <meta name="twitter:title" content="<%= `${profile.first_name || ''} ${profile.last_name || ''}`.trim() %>">
 <meta name="twitter:description" content="<%= (profile.title || profile.company_name || '') %>">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Archivo:wght@500;700;900&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/themes.css">
 <link rel="stylesheet" href="/css/card.css">
 </head>
-<body class="theme-<%= profile.theme %>" style="--primary: <%= profile.primary_color %>; --secondary: <%= profile.secondary_color %>;">
+<body class="theme-<%= profile.theme %> font-<%= profile.font_family || 'inter' %>" style="--primary: <%= profile.primary_color %>; --secondary: <%= profile.secondary_color %>;">
 
+<% const hasRing = ['premium','vibrant'].includes(profile.theme); %>
 <div class="card">
-  <div class="cover" <% if (profile.cover_image_url) { %>style="background-image:url('<%= profile.cover_image_url %>')"<% } %>></div>
+  <div class="cover" <% if (profile.cover_image_url) { %>style="background-image:url('<%= profile.cover_image_url %>');background-size:cover;background-position:center;"<% } %>></div>
 
   <div class="identity">
+    <div class="avatar-ring" <% if (hasRing) { %>data-has-ring="true"<% } %>>
     <% if (profile.profile_photo_url) { %>
       <img class="avatar" src="<%= profile.profile_photo_url %>" alt="<%= profile.first_name %> <%= profile.last_name %>">
     <% } else { %>
       <div class="avatar avatar-placeholder"><%= (profile.first_name || '?').charAt(0) %><%= (profile.last_name || '').charAt(0) %></div>
     <% } %>
+    </div>
     <h1><%= `${profile.first_name || ''} ${profile.last_name || ''}`.trim() %></h1>
     <% if (profile.title) { %><p class="title"><%= profile.title %></p><% } %>
     <% if (profile.company_name) { %><p class="company"><%= profile.company_name %></p><% } %>

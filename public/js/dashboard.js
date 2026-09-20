@@ -64,6 +64,30 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   window.location.href = '/login';
 });
 
+const THEME_OPTIONS = [
+  { value: 'minimal', label: 'Minimal' },
+  { value: 'corporate', label: 'Corporate' },
+  { value: 'luxury', label: 'Luxury' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'creative', label: 'Creative' },
+  { value: 'restaurant', label: 'Restaurant' },
+  { value: 'premium', label: 'Premium Koyu (altın, camsı)' },
+  { value: 'vibrant', label: 'Modern Canlı (degrade, enerjik)' },
+  { value: 'editorial', label: 'Editöryal / Bold (dergi tarzı)' },
+];
+const FONT_OPTIONS = [
+  { value: 'inter', label: 'Inter (Modern Sans, varsayılan)' },
+  { value: 'outfit', label: 'Outfit (Yuvarlak Sans)' },
+  { value: 'fraunces', label: 'Fraunces (Zarif Serif)' },
+  { value: 'archivo', label: 'Archivo (Kalın Grotesk)' },
+  { value: 'playfair', label: 'Playfair Display (Klasik Serif)' },
+];
+
+function refreshPreview() {
+  const frame = document.getElementById('previewFrame');
+  if (frame) frame.src = frame.src;
+}
+
 function esc(s) { return String(s == null ? '' : s).replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c])); }
 
 // ---------------- OVERVIEW ----------------
@@ -80,7 +104,7 @@ function renderOverview() {
     </div>
     <div class="card-box">
       <h3 style="margin-top:0;">Canlı Önizleme</h3>
-      <div class="preview-frame"><iframe src="${cardUrl}"></iframe></div>
+      <div class="preview-frame"><iframe id="previewFrame" src="${cardUrl}"></iframe></div>
     </div>
   `;
 }
@@ -127,15 +151,24 @@ function renderProfileForm() {
         <div class="field"><label>Adres</label><input name="address" value="${esc(p.address)}"></div>
         <div class="field"><label>Google Değerlendirme URL</label><input name="google_review_url" value="${esc(p.google_review_url)}"></div>
 
-        <h4>Tema</h4>
+        <h4>Tema ve Görünüm</h4>
         <div class="grid-2">
           <div class="field"><label>Tema</label>
-            <select name="theme">
-              ${['minimal', 'corporate', 'luxury', 'dark', 'creative', 'restaurant'].map((t) => `<option value="${t}" ${p.theme === t ? 'selected' : ''}>${t}</option>`).join('')}
+            <select name="theme" id="themeSelect">
+              ${THEME_OPTIONS.map((t) => `<option value="${t.value}" ${p.theme === t.value ? 'selected' : ''}>${t.label}</option>`).join('')}
             </select>
           </div>
-          <div class="field"><label>Ana Renk</label><input type="color" name="primary_color" value="${esc(p.primary_color)}"></div>
+          <div class="field"><label>Font</label>
+            <select name="font_family">
+              ${FONT_OPTIONS.map((f) => `<option value="${f.value}" ${(p.font_family || 'inter') === f.value ? 'selected' : ''}>${f.label}</option>`).join('')}
+            </select>
+          </div>
         </div>
+        <div class="grid-2">
+          <div class="field"><label>Ana Renk (vurgu rengi)</label><input type="color" name="primary_color" value="${esc(p.primary_color)}"></div>
+          <div class="field"><label>İkincil Renk (alt metinler)</label><input type="color" name="secondary_color" value="${esc(p.secondary_color)}"></div>
+        </div>
+        <p style="font-size:12.5px;color:#6b7280;margin-top:-4px;">Not: "Premium Koyu", "Modern Canlı" ve "Editöryal/Bold" temaları kendi özel renk paletiyle gelir; Ana/İkincil Renk esas olarak Minimal, Corporate, Dark, Creative gibi klasik temalarda etkilidir.</p>
 
         <div class="field">
           <label><input type="checkbox" name="lead_form_enabled" ${p.lead_form_enabled ? 'checked' : ''}> "Bana Ulaşın" formunu göster</label>
@@ -155,6 +188,12 @@ function renderProfileForm() {
         <div class="field"><label>Cover</label><input type="file" id="coverInput" accept="image/png,image/jpeg,image/webp"></div>
       </div>
       <div class="field"><label>Logo</label><input type="file" id="logoInput" accept="image/png,image/jpeg,image/webp"></div>
+    </div>
+
+    <div class="card-box">
+      <h3 style="margin-top:0;">Canlı Önizleme</h3>
+      <p style="font-size:12.5px;color:#6b7280;margin-top:-6px;">Kaydettiğinizde otomatik güncellenir.</p>
+      <div class="preview-frame"><iframe id="previewFrame" src="${window.location.origin}/${p.slug}"></iframe></div>
     </div>
   `;
 
@@ -188,6 +227,7 @@ function renderProfileForm() {
       const data = await api('/api/profile', { method: 'PUT', body: JSON.stringify(body) });
       state.profile = data.profile;
       toast('Profil güncellendi.');
+      refreshPreview();
     } catch (e2) { toast(e2.message); }
   });
 
@@ -199,6 +239,7 @@ function renderProfileForm() {
         const data = await apiUpload(endpoint, file);
         state.profile = data.profile;
         toast('Görsel yüklendi.');
+        refreshPreview();
       } catch (err) { toast(err.message); }
     });
   };

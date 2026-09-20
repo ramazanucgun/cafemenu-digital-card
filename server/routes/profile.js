@@ -59,9 +59,15 @@ router.get('/', requireAuth, async (req, res) => {
 const EDITABLE_FIELDS = [
   'first_name', 'last_name', 'title', 'company_name', 'bio',
   'phone', 'whatsapp', 'email', 'website', 'address',
-  'google_review_url', 'theme', 'primary_color', 'secondary_color',
+  'google_review_url', 'theme', 'font_family', 'primary_color', 'secondary_color',
   'lead_form_enabled', 'is_public',
 ];
+
+const ALLOWED_THEMES = new Set([
+  'minimal', 'corporate', 'luxury', 'dark', 'creative', 'restaurant',
+  'premium', 'vibrant', 'editorial',
+]);
+const ALLOWED_FONTS = new Set(['inter', 'outfit', 'fraunces', 'archivo', 'playfair']);
 
 // PUT /api/profile - update own profile fields (not slug; see /slug endpoint)
 router.put('/', requireAuth, async (req, res) => {
@@ -78,6 +84,12 @@ router.put('/', requireAuth, async (req, res) => {
       if (field === 'website' && val && !/^https?:\/\//i.test(val)) val = `https://${val}`;
       if (field === 'email' && val && !validator.isEmail(val)) {
         return res.status(400).json({ error: 'validation', message: 'Geçersiz e-posta.' });
+      }
+      if (field === 'theme' && !ALLOWED_THEMES.has(val)) {
+        return res.status(400).json({ error: 'validation', message: 'Geçersiz tema.' });
+      }
+      if (field === 'font_family' && !ALLOWED_FONTS.has(val)) {
+        return res.status(400).json({ error: 'validation', message: 'Geçersiz font.' });
       }
       updates.push(`${field} = $${i}`);
       values.push(val);
