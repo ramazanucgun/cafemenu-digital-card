@@ -1,41 +1,26 @@
 const express = require('express');
-const path = require('path');
-const crypto = require('crypto');
 const multer = require('multer');
 const validator = require('validator');
 const { pool } = require('../db');
 const { requireAuth } = require('../middleware/auth');
 const { isSlugAvailable, slugify } = require('../utils/slug');
+const { uploadImageBuffer, deleteImageByUrl, isConfigured: r2Configured } = require('../utils/storage');
 
 const router = express.Router();
 
 const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5MB
 
-function makeUploader(subdir) {
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, path.join(__dirname, '..', '..', 'uploads', subdir)),
-    filename: (req, file, cb) => {
-      const ext = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' }[file.mimetype] || '';
-      const safeName = `${crypto.randomBytes(16).toString('hex')}${ext}`;
-      cb(null, safeName);
-    },
-  });
-  return multer({
-    storage,
-    limits: { fileSize: MAX_UPLOAD_BYTES },
-    fileFilter: (req, file, cb) => {
-      if (!ALLOWED_MIME.has(file.mimetype)) {
-        return cb(new Error('invalid_mime'));
-      }
-      return cb(null, true);
-    },
-  });
-}
-
-const uploadProfilePhoto = makeUploader('profile');
-const uploadCover = makeUploader('cover');
-const uploadLogo = makeUploader('logo');
+// Files are held in memory just long enough to stream them to Cloudflare R2 —
+// nothing is written to the server's local (ephemeral) disk.
+const uploader = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_UPLOAD_BYTES },
+  fileFilter: (req, file, cb) => {
+    if (!ALLOWED_MIME.has(file.mimetype)) return cb(new Error('invalid_mime'));
+    return cb(null, true);
+  },
+});
 
 async function getOwnProfile(userId) {
   const { rows } = await pool.query(
@@ -157,7 +142,12 @@ router.get('/slug-available', requireAuth, async (req, res) => {
 function uploadHandler(field, column) {
   return [
     (req, res, next) => {
-      const uploader = { profile_photo: uploadProfilePhoto, cover: uploadCover, logo: uploadLogo }[field];
+      if (!r2Configured) {
+        return res.status(503).json({
+          error: 'storage_not_configured',
+          message: 'Görsel depolama (Cloudflare R2) henüz yapılandırılmamış. Ortam değişkenlerini kontrol edin.',
+        });
+      }
       uploader.single('file')(req, res, (err) => {
         if (err) return res.status(400).json({ error: 'upload_error', message: 'Görsel yüklenemedi (tip/boyut kontrolü).' });
         return next();
@@ -167,12 +157,22 @@ function uploadHandler(field, column) {
       const profile = await getOwnProfile(req.user.id);
       if (!profile) return res.status(404).json({ error: 'not_found' });
       if (!req.file) return res.status(400).json({ error: 'validation', message: 'Dosya bulunamadı.' });
-      const relSubdir = { profile_photo: 'profile', cover: 'cover', logo: 'logo' }[field];
-      const url = `/uploads/${relSubdir}/${req.file.filename}`;
+
+      const subdir = { profile_photo: 'profile', cover: 'cover', logo: 'logo' }[field];
+      let url;
+      try {
+        url = await uploadImageBuffer(req.file.buffer, req.file.mimetype, subdir);
+      } catch (err) {
+        console.error('[upload] R2 upload failed:', err);
+        return res.status(502).json({ error: 'upload_failed', message: 'Görsel depolama servisine ulaşılamadı.' });
+      }
+
+      const oldUrl = profile[column];
       const { rows } = await pool.query(
         `UPDATE digital_profiles SET ${column} = $1, updated_at = now() WHERE id = $2 RETURNING *`,
         [url, profile.id]
       );
+      deleteImageByUrl(oldUrl).catch(() => {}); // best-effort cleanup of the replaced image
       return res.json({ profile: rows[0] });
     },
   ];

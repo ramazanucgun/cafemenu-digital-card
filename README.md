@@ -73,6 +73,13 @@ npm test
 
 `tests/run-tests.js` şunları kapsar: kayıt/giriş, yetkisiz erişim, profil CRUD, Türkçe slug normalizasyonu, reserved/duplicate slug, QR/NFC üretimi ve stabil token yönlendirmesi, **kritik slug değişikliği sonrası QR/NFC/analytics stabilite testi**, lead gönderimi + rate limiting, IDOR koruması, XSS/upload güvenliği (bkz. `tests/adhoc-security-checks.js`).
 
+## Görsel Depolama (Cloudflare R2)
+
+Profil fotoğrafı, cover ve logo yüklemeleri **Cloudflare R2**'ye (S3-uyumlu nesne depolama) gider — sunucunun kendi diskine yazılmaz. Bunun nedeni: Render gibi platformlarda disk "ephemeral"dır (her deploy/restart'ta silinir); R2 kalıcıdır ve Render'ın ücretsiz planında bile çalışır.
+
+`.env` dosyasında `R2_*` değişkenleri tanımlı değilse, uygulamanın geri kalanı normal çalışır ama görsel yükleme uçları `503 storage_not_configured` döner. Kurulum adımları için `.env.example`'daki değişken listesine bakın.
+
+
 ## Production Deploy Notu
 
 - Bu proje mevcut CafeMenu deployment'ından **bağımsız yeni bir servis** olarak deploy edilmelidir (örn. ayrı bir Render/Vercel/Cloudflare servisi).
