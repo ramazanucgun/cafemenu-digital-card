@@ -4,6 +4,7 @@ const validator = require('validator');
 const { pool } = require('../db');
 const { recordEvent } = require('./analytics');
 const { hashValue } = require('../utils/token');
+const { svgIcon, iconForType } = require('../utils/icons');
 
 const router = express.Router();
 
@@ -74,6 +75,8 @@ function renderCard(res, profile, links, source) {
     links,
     source: source || 'direct',
     appUrl: process.env.APP_URL || 'http://localhost:3000',
+    svgIcon,
+    iconForType,
   });
 }
 

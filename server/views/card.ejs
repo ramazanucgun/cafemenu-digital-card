@@ -46,24 +46,24 @@
   <div class="actions">
     <% if (profile.phone) { %>
       <a class="action-btn" href="tel:<%= profile.phone %>" data-event="phone_click">
-        <span>Ara</span>
+        <span class="icon"><%- svgIcon('phone') %></span><span class="label">Ara</span>
       </a>
     <% } %>
     <% if (profile.whatsapp) { %>
       <a class="action-btn" target="_blank" rel="noopener" href="https://wa.me/<%= profile.whatsapp.replace(/[^0-9]/g,'') %>" data-event="whatsapp_click">
-        <span>WhatsApp</span>
+        <span class="icon"><%- svgIcon('chat') %></span><span class="label">WhatsApp</span>
       </a>
     <% } %>
     <% if (profile.email) { %>
       <a class="action-btn" href="mailto:<%= profile.email %>" data-event="email_click">
-        <span>E-posta</span>
+        <span class="icon"><%- svgIcon('mail') %></span><span class="label">E-posta</span>
       </a>
     <% } %>
     <a class="action-btn" href="/<%= profile.slug %>/vcard.vcf?src=<%= source %>" data-event="save_contact">
-      <span>Rehbere Kaydet</span>
+      <span class="icon"><%- svgIcon('userplus') %></span><span class="label">Kaydet</span>
     </a>
     <button class="action-btn" id="shareBtn" type="button">
-      <span>Paylaş</span>
+      <span class="icon"><%- svgIcon('share') %></span><span class="label">Paylaş</span>
     </button>
   </div>
 
@@ -71,7 +71,7 @@
   <div class="social-row">
     <% links.filter(l => ['instagram','facebook','linkedin','x','tiktok','youtube','telegram','pinterest'].includes(l.type)).forEach(l => { %>
       <a class="social-icon" target="_blank" rel="noopener" href="<%= l.url %>" data-event="<%= l.type %>_click" title="<%= l.label || l.type %>">
-        <%= l.type.slice(0,2).toUpperCase() %>
+        <%- iconForType(l.type) %>
       </a>
     <% }) %>
   </div>
@@ -81,16 +81,16 @@
   <% if (profile.website || profile.address || profile.google_review_url || custom.length) { %>
   <div class="link-list">
     <% if (profile.website) { %>
-      <a class="link-item" target="_blank" rel="noopener" href="<%= profile.website %>" data-event="website_click"><%= profile.website %></a>
+      <a class="link-item" target="_blank" rel="noopener" href="<%= profile.website %>" data-event="website_click"><span class="link-ic"><%- svgIcon('globe') %></span><span><%= profile.website %></span></a>
     <% } %>
     <% if (profile.address) { %>
-      <a class="link-item" target="_blank" rel="noopener" href="https://maps.google.com/?q=<%= encodeURIComponent(profile.address) %>">Konum: <%= profile.address %></a>
+      <a class="link-item" target="_blank" rel="noopener" href="https://maps.google.com/?q=<%= encodeURIComponent(profile.address) %>"><span class="link-ic"><%- svgIcon('pin') %></span><span><%= profile.address %></span></a>
     <% } %>
     <% if (profile.google_review_url) { %>
-      <a class="link-item" target="_blank" rel="noopener" href="<%= profile.google_review_url %>" data-event="google_click">Google'da Değerlendir</a>
+      <a class="link-item" target="_blank" rel="noopener" href="<%= profile.google_review_url %>" data-event="google_click"><span class="link-ic"><%- svgIcon('star') %></span><span>Google'da Değerlendir</span></a>
     <% } %>
     <% custom.forEach(l => { %>
-      <a class="link-item" target="_blank" rel="noopener" href="<%= l.url %>"><%= l.label || l.url %></a>
+      <a class="link-item" target="_blank" rel="noopener" href="<%= l.url %>"><span class="link-ic"><%- iconForType(l.type) %></span><span><%= l.label || l.url %></span></a>
     <% }) %>
   </div>
   <% } %>
@@ -141,8 +141,8 @@
       } else {
         try {
           await navigator.clipboard.writeText(url);
-          shareBtn.querySelector('span').textContent = 'Kopyalandı!';
-          setTimeout(() => { shareBtn.querySelector('span').textContent = 'Paylaş'; }, 1500);
+          const label = shareBtn.querySelector('.label');
+          if (label) { label.textContent = 'Kopyalandı!'; setTimeout(() => { label.textContent = 'Paylaş'; }, 1500); }
         } catch (e) {}
       }
     });
